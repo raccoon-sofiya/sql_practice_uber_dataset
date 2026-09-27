@@ -1,145 +1,104 @@
 cells:
   - kind: 2
     languageId: sql
-    value: "-- get familiar with the table structure\r
-
+    value: 
+      "-- get familiar with the table structure\r
       SELECT * FROM csv\r
+      LIMIT 3;"
 
-      LIMIT 3"
     metadata: {}
   - kind: 2
     languageId: sql
-    value: "SELECT \r
-
+    value: 
+      "-- warm-up with aggregate functions\r
+      SELECT \r
       DISTINCT city,\r
-
       COUNT(trip_id) AS completed_rides,\r
-
       ROUND(AVG(distance_km), 2) AS avg_distance,\r
-
       ROUND(AVG(fare_amount), 2) AS avg_fare,\r
-
       FROM csv\r
-
       WHERE status = 'Completed'\r
-
       GROUP BY city\r
-
       ORDER BY avg_fare DESC"
+
     metadata: {}
   - kind: 2
     languageId: sql
-    value: "/* Analysis of the trips and fare amount in January: number of \r
-
-      trips made each day (trips_count), total of fares that day \r
-
-      (fares_total) and its difference with the average daily \r
-
-      fares total in January (diff_w_avg); average daily total shown\r
-
-      in a separate daily_avg_total column */\r
+    value: 
+      "/* Selected location: Boston. Analysis of the trips and \r
+      fare amount in January: number of trips made each day (trips_count),\r
+      total of fares that day (fares_total) and its difference with the\r
+      average daily fares total in January (diff_w_avg); average daily total\r
+      is shown in a separate column (daily_avg_total) */\r
 
       \r
 
       WITH Boston_January AS (SELECT * FROM csv\r
-
       \    WHERE city = 'Boston' AND \r
-
       \    EXTRACT(MONTH FROM pickup_time) = 01\r
-
       \    AND status = 'Completed')\r
 
       \r
 
       SELECT DISTINCT EXTRACT(DAY FROM pickup_time) AS jan_date,\r
-
       COUNT(*) AS trips_count,\r
-
       ROUND(SUM(fare_amount), 2) AS fares_total,\r
-
       ROUND(SUM(fare_amount) - (SELECT SUM(fare_amount), \r
-
       \    FROM boston_january)/31, 2) AS diff_w_avg,\r
-
       ROUND((SELECT SUM(fare_amount) FROM Boston_January)/31, 2) AS
       daily_avg_total\r
-
       FROM Boston_January\r
-
       GROUP BY jan_date,\r
-
       ORDER BY jan_date\r\n"
+    
     metadata: {}
   - kind: 2
     languageId: sql
-    value: "/* I'm aware that February records here comprise only\r
-
-      4 days; the comparison of months with UNION is made \r
-
-      mainly to show the skills */\r
-
+    value: 
+      "/* I'm aware that February records here comprise only 4 days;\r
+      the comparison of months with UNION is made mainly to show the skills.\r
+      The output shows minimal, average, and maximum distance of the trips\r
+      in Seattle from January and February, as well as the most common\r
+      payment method used*/\r
       \r
 
       WITH Seattle_January AS (SELECT * FROM csv\r
-
       \    WHERE city = 'Seattle' AND \r
-
       \    EXTRACT(MONTH FROM pickup_time) = 01\r
-
       \    AND status = 'Completed'),\r
 
       \r
 
       \    mcp_jan AS (SELECT payment_method, \r
-
       \    COUNT(payment_method) AS n_payments\r
-
       \    FROM Seattle_January \r
-
       \    GROUP BY payment_method\r
-
       \    ORDER BY n_payments DESC\r
-
       \    LIMIT 1),\r
 
       \r
 
       \    Seattle_February AS (SELECT * FROM csv\r
-
       \    WHERE city = 'Seattle' AND \r
-
       \    EXTRACT(MONTH FROM pickup_time) = 02\r
-
       \    AND status = 'Completed'),\r
-
       \r
 
       \    mcp_feb AS (SELECT payment_method, \r
-
       \    COUNT(payment_method) AS n_payments\r
-
       \    FROM Seattle_February\r
-
       \    GROUP BY payment_method\r
-
       \    ORDER BY n_payments DESC\r
-
       \    LIMIT 1)\r
 
       \r
 
       SELECT ROUND(MIN(distance_km), 2) AS min_distance,\r
-
       ROUND(AVG(distance_km), 2) AS avg_distance,\r
-
       ROUND(MAX(distance_km), 2) AS max_distance,\r
-
       mcp_jan.payment_method AS most_common_payment\r
-
       FROM Seattle_January\r
-
       JOIN mcp_jan ON Seattle_January.payment_method = mcp_jan.payment_method\r
-
       GROUP BY mcp_jan.payment_method\r
 
       \r
@@ -149,15 +108,10 @@ cells:
       \r
 
       SELECT ROUND(MIN(distance_km), 2),\r
-
       ROUND(AVG(distance_km), 2),\r
-
       ROUND(MAX(distance_km), 2),\r
-
       mcp_feb.payment_method\r
-
       FROM Seattle_February\r
-
       JOIN mcp_feb ON Seattle_February.payment_method = mcp_feb.payment_method\r
 
       GROUP BY mcp_feb.payment_method\r\n"
